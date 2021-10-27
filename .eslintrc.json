@@ -1,0 +1,25 @@
+{
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es2021": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": 12
+    },
+    "rules": {
+        "no-var": "warn",
+        "semi": "warn",
+        // "indent": "warn",
+        "no-multi-spaces": "warn",
+        "space-in-parens": "warn",
+        "no-multiple-empty-lines": "warn",
+        "prefer-const": "warn",
+        "no-unused-vars":"warn",
+        "no-use-before-define": "warn",
+        "camelcase":["error",{
+            "properties":"never"
+        }]
+    }
+}
