@@ -27,9 +27,8 @@ exports.addUser = async (req, res, next) => {
 exports.searchSingleUser = async (req, res, next) => {
 
   try{
-  const searchFor = req.body.search_for;
-
-  if(!searchFor){
+  const searchFor = req.query.search_for;
+    if(!searchFor){
     throw errorResponse.Api400Error({description:"Search term not found"});
   }
 
