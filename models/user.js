@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
         immutable:true,
         minlength:10,
     },
-    token_id:{
+    firebase_token_id:{
         type:String,
         required:true,
     },
