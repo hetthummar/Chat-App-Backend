@@ -6,6 +6,7 @@ const customResponses = require("./middlewares/customResponses");
 const database = require("./db/connection");
 const initializeFirebase = require("./firebase/firebase_init");
 const decodeIDToken = require("./middlewares/verify_token");
+const PORT = process.env.PORT || 5000;
 
 const app = express();
 app.use(morgan("dev"));
@@ -24,7 +25,7 @@ app.use((req, res) => {
 
 database.connectToDb(
   () => {
-    app.listen(3000, () => {
+    app.listen(PORT, () => {
       console.log("Server Started g ");
     });
   },
