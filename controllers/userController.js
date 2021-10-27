@@ -93,6 +93,8 @@ exports.updateUser = async (req, res, next) => {
       throw errorResponse.idNotFoundError();
      }
 
+     delete req.body["_id"];
+
     await userModel.findByIdAndUpdate(_id,req.body,{runValidators:true});
     res.dataUpdateSuccess();
   }catch(error){
