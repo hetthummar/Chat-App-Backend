@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "Chatapplication backend built with node js,mongo db and socket io",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "keywords": [
     "node js",
     "mongo db",
@@ -22,6 +19,9 @@
   "devDependencies": {
     "@types/node": "^16.10.2",
     "eslint": "^7.32.0"
+  },
+  "scripts": {
+    "start": "node app.js"
   },
   "engines": {
     "node": "14.x"
