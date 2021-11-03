@@ -9,6 +9,7 @@ exports.addUser = async (req, res, next) => {
   try {
     const _id = req.body._id;
 
+
     const doesUserExit = await userModel.exists({ _id: _id});
     if (doesUserExit) {
       throw errorResponse.Api409Error({});
@@ -27,35 +28,85 @@ exports.addUser = async (req, res, next) => {
 exports.searchSingleUser = async (req, res, next) => {
 
   try{
+
   const searchFor = req.query.search_for;
+  const startAfterId = req.query.start_after_id || null;
+
     if(!searchFor){
     throw errorResponse.Api400Error({description:"Search term not found"});
   }
+  
+  let aggragationQuery;
 
-  let aggragationQuery = [
-    {
-      '$search': {
-        'index': 'nameSearch', 
-        'autocomplete': {
-          'query': searchFor, 
-          'path': 'name', 
-          'fuzzy': {
-            'maxEdits': 2, 
-            'prefixLength': 2
+  if(startAfterId != null){
+    aggragationQuery = [
+      {
+        '$search': {
+          'index': 'nameSearchIndex', 
+         'autocomplete': {
+            'query': searchFor, 
+            'path': 'name', 
+            'fuzzy': {
+              'maxEdits': 2, 
+              'prefixLength': 2
+            }
           }
         }
-      }
-    }, {
-      '$project': {
-        'name': 1, 
-        'status_line': 1, 
-        'compressed_profile_image': 1
-      }
-    }
-  ];
+      }, {
+        '$match': {
+          '_id': {
+            '$gt': startAfterId
+          }
+        }
+      }, {
+        '$sort': {
+          '_id': 1
+        }
+      }, {
+        '$project': {
+          'name': 1, 
+          'status_line': 1, 
+          'compressed_profile_image': 1
+        }
+      }, {
+        '$limit': 15
+      },
+    ];
+  }else{
+    aggragationQuery = [
+      {
+        '$search': {
+          'index': 'nameSearchIndex', 
+          // 'text': {
+          //   'query': searchFor, 
+          //   'path': 'name'
+          // }
+            'autocomplete': {
+            'query': searchFor, 
+            'path': 'name', 
+            'fuzzy': {
+              'maxEdits': 2, 
+              'prefixLength': 2
+            }
+          }
+        }
+      }, {
+        '$sort': {
+          '_id': 1
+        }
+      }, {
+        '$project': {
+          'name': 1, 
+          'status_line': 1, 
+          'compressed_profile_image': 1
+        }
+      }, {
+        '$limit': 15
+      },
+    ];
+  }
 
   const results = await userModel.aggregate(aggragationQuery);
-  console.log("HET :- " + results);
   return res.dataFetchSuccess({data:results});
 }catch(error){
   next(error);

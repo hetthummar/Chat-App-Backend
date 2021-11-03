@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true,
         trim:true,
-        minlength:6,
+        minlength:2,
         maxlength: 34,
     },
     phoneNumber:{
@@ -52,6 +52,10 @@ const userSchema = new mongoose.Schema({
     joined_groups:{
         type:[Number],
     },
+    isOnline:{
+        type:Boolean,
+        default:false
+    }
 });
 
 const model = mongoose.model('users',userSchema);
