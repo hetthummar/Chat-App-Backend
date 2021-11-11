@@ -6,5 +6,6 @@ router.post("/", messageController.addMessage);
 router.patch("/updateMsgSeenTime", messageController.updateMsgSeenTime);
 router.patch("/updateMsgDeliverTime", messageController.updateMsgDeliverTime);
 router.get("/getMissedMessage", messageController.getMissedMessage);
+router.patch("/updateSenderLocalMsgStatus", messageController.msgUpdatedLocallyForSender);
 
 module.exports = router;

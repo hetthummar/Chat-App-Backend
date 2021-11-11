@@ -1,0 +1,115 @@
+function doPost(e) {
+    myFunction();
+  }
+  
+  function downloadDheet() {
+    var ss = SpreadsheetApp.openById("1TJeddqOXacAhMaPM5VaQr5ptKbkGRDHmtKkJ1KjkE38");
+    var sheets = ss.getSheets();
+    var passThroughFolder = DriveApp.createFolder('sheets');
+    for (var s in sheets) {
+      var csv = "";
+      var data = sheets[s].getDataRange().getValues();
+      for (d in data) {
+        csv += data[d].join(",") + "\n";
+      }
+      passThroughFolder.createFile("" + sheets[s].getName() + ".csv", csv);
+    }
+  }
+  
+  function deleteSheets()
+  {
+    var ss_id = SpreadsheetApp.openById("1TJeddqOXacAhMaPM5VaQr5ptKbkGRDHmtKkJ1KjkE38");
+  var sheet_name_demo="lakeview";
+  var sheet = ss_id.getSheetByName(sheet_name_demo);
+  
+     var sheets = ss_id.getSheets();
+  
+    for (i = 1; i < sheets.length; i++) {
+       switch(sheets[i].getSheetName()) {
+       case "INPUT":
+       case "Template":
+       case "SUMMARY":
+           break;
+       default:
+          ss_id.deleteSheet(sheets[i]);
+      }
+    }
+  }
+  function myFunction() {
+    var ss_id = SpreadsheetApp.openById("1TJeddqOXacAhMaPM5VaQr5ptKbkGRDHmtKkJ1KjkE38");
+  var sheet_name_demo="lakeview";
+  var sheet = ss_id.getSheetByName(sheet_name_demo);
+  
+    var xrange = sheet.getRange("B:B");
+    var xr1 = getLast(xrange);
+    var total_line = parseInt(xr1);
+  
+  var total_line=total_line/199+1;
+  for(var i=1;i<=total_line;i++)
+  {
+  
+   
+    var rows = ss_id.getSheets();
+    var c = parseInt(rows.length) ;
+   ss_id.insertSheet("het"+c);
+   ss_id.setActiveSheet(ss_id.getSheetByName(sheet_name_demo), true);
+  
+  var tt_1=parseInt(i)*199-199+1;
+  var tt_2=tt_1+199-1;
+  var data ="B"+tt_1+":B"+tt_2
+  console.log(data); 
+    ss_id.getSheetByName(sheet_name_demo).getRange(data).activate();
+  
+  
+    var source_sheet = ss_id.getSheetByName(sheet_name_demo);
+    var target_sheet = ss_id.getSheetByName("het"+c);
+  
+  
+    var source_range = source_sheet.getRange(data);
+    var values = source_range.getValues();
+  
+  var xtt_1=parseInt(1)*199-199+1;
+  var xtt_2=xtt_1+199-1;
+  var xdata ="B"+xtt_1+":B"+xtt_2
+  
+    target_sheet.getRange(xdata).setValues(values);
+  
+  
+  }
+       
+   
+  
+  }
+  
+  function getLast(range) {
+  //must give sheet name "lakeview" and change ss_id
+  
+  var ss_id = SpreadsheetApp.openById("1TJeddqOXacAhMaPM5VaQr5ptKbkGRDHmtKkJ1KjkE38");
+  var sheet_name_demo="lakeview";
+  var sheet = ss_id.getSheetByName(sheet_name_demo);
+  
+    var getResult = function (range) {
+      if (!((range.getNumRows() > 1 && range.getNumColumns() == 1) || (range.getNumRows() == 1 && range.getNumColumns() > 1))) {
+        throw new Error("Please input one row or one column.");
+      }
+      var v = Array.prototype.concat.apply([], range.getValues());
+      var f = Array.prototype.concat.apply([], range.getFormulas());
+      var i;
+      for (i = v.length - 1; i >= 0; i--) {
+        if (v[i] != "" || f[i] != "") break;
+      }
+      return i + 1;
+    };
+    if (Array.isArray(range)) {
+      return range.map(function (e) {
+        return getResult(e);
+      });
+    } else {
+      try {
+        range.getA1Notation();
+      } catch (e) {
+        throw new Error("Inputted value is not a range.");
+      }
+      return getResult(range);
+    }
+  }

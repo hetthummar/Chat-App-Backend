@@ -71,6 +71,21 @@ const errorResponse = {
       isOperational: isOperational,
     });
   },
+
+  invalidId({
+    name: name = "INVALID_ID",
+    statusCode = httpStatusCodes.BAD_REQUEST,
+    description = "Id is invalid",
+    isOperational = true,
+  } = {}) {
+    return new BaseError({
+      name: name,
+      statusCode: statusCode,
+      description: description,
+      isOperational: isOperational,
+    });
+  },
+
 };
 
 module.exports = errorResponse;

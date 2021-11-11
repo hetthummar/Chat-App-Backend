@@ -2,6 +2,7 @@ const express = require("express");
 const morgan = require("morgan");
 
 const userRoutes = require("./router/users");
+const userUpdateRoutes = require("./router/user_update_route");
 const messageRoutes = require("./router/messages");
 const userConnectionStatusRoutes = require("./router/user_connection_status.js");
 const customResponses = require("./middlewares/customResponses");
@@ -24,6 +25,8 @@ app.use(morgan("combined"));
 initializeFirebase();
 app.use("/users", userRoutes);
 app.use(decodeIDToken);
+app.use("/userUpdate", userUpdateRoutes);
+console.log("GOIGN TO SG ROUTe");
 app.use("/messages", messageRoutes);
 app.use("/connectionStatus", userConnectionStatusRoutes);
 

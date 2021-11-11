@@ -7,6 +7,6 @@ router.post("/", userController.addUser);
 // router.delete('/:id',userController.deleteSingleUser);
 router.get("/", userController.getSingleUser);
 router.get("/search/", userController.searchSingleUser);
-router.patch("/", userController.updateUser);
+router.patch("/userUpdateToken/", userController.updateUserToken);
 
 module.exports = router;

@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const userModel = require("../models/user");
 const errorResponse = require("../utils/errors/errorResponse.js");
 const mongooseIdHelper = require("../utils/mongooseIdHelper");
-
+const util = require('util');
 
 exports.addUser = async (req, res, next) => {
 
@@ -42,7 +42,7 @@ exports.searchSingleUser = async (req, res, next) => {
     aggragationQuery = [
       {
         '$search': {
-          'index': 'nameSearchIndex', 
+          'index': 'userNameSearchIndex', 
          'autocomplete': {
             'query': searchFor, 
             'path': 'name', 
@@ -76,13 +76,13 @@ exports.searchSingleUser = async (req, res, next) => {
     aggragationQuery = [
       {
         '$search': {
-          'index': 'nameSearchIndex', 
+          'index': 'userNameSearchIndex', 
           // 'text': {
           //   'query': searchFor, 
           //   'path': 'name'
           // }
             'autocomplete': {
-            'query': searchFor, 
+            'query': searchFor,
             'path': 'name', 
             'fuzzy': {
               'maxEdits': 2, 
@@ -121,12 +121,13 @@ exports.getSingleUser = async (req, res, next) => {
 
 
   try {
-    const _id = req.body._id;
+    const _id = req.query._id;
     if(!_id){
       throw errorResponse.idNotFoundError();
      }
 
       const userInformation = await userModel.findById(_id);
+      console.log(userInformation);
       res.dataFetchSuccess({data:userInformation});
    
   } catch (error) {
@@ -135,15 +136,35 @@ exports.getSingleUser = async (req, res, next) => {
 
 };
 
-exports.updateUser = async (req, res, next) => {
+exports.updateUserToken = async (req, res, next) => {
+  console.log("update user token body :- " + util.inspect(req.body));
 
   try{
     const _id = req.body._id;
     if(!_id){
       throw errorResponse.idNotFoundError();
-     }
+    }
+    delete req.body["_id"];
 
-     delete req.body["_id"];
+    console.log("update user token id   :- " + _id);
+
+    await userModel.findByIdAndUpdate(_id,req.body,{runValidators:true});
+    res.dataUpdateSuccess();
+  }catch(error){
+    next(error);
+  }
+
+
+};
+
+exports.updateUser = async (req, res, next) => {
+
+  try{
+    const _id = req.userId;
+    delete req.body["_id"];
+
+    console.log("HET :- " + util.inspect(req.body));
+    console.log("HET :- " + _id);
 
     await userModel.findByIdAndUpdate(_id,req.body,{runValidators:true});
     res.dataUpdateSuccess();

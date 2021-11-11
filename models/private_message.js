@@ -30,6 +30,17 @@ const participantsSchema = new mongoose.Schema({
     }
 });
 
+const imageInfoSchema = new mongoose.Schema({
+    width:{
+        type:String,
+        required:true,
+    },
+    height:{
+        type:String,
+        required:true,
+    }
+});
+
 const privateMessageSchema = new mongoose.Schema({
     participants:{
         type:participantsSchema,
@@ -69,11 +80,11 @@ const privateMessageSchema = new mongoose.Schema({
     },
     seen_at:{
         type:Number,
-        default:0
+        default:null
     },
     delivered_at:{
         type:Number,
-        default:0 
+        default:null 
     },
     msg_status:{
         type:Number,
@@ -87,6 +98,18 @@ const privateMessageSchema = new mongoose.Schema({
         type:Boolean,
         default:false
     },
+    network_file_url:{
+        type:String,
+        default:null
+    },
+    blur_hash_image:{
+        type:String,
+        default:null
+    },
+    image_info:{
+        type:imageInfoSchema,
+        default:null
+    }    
 
 });
 
