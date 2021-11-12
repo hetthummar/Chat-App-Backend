@@ -20,7 +20,7 @@ function isUserOne(userList, userId) {
   }
 }
 
-async function addToRecentChat(recentChatModel, isUser1) {
+exports.addToRecentChat = async (recentChatModel, isUser1) => {
   console.log(
     "INCREMENT ID ! - " + util.inspect(recentChatModel, { depth: null })
   );
@@ -38,7 +38,7 @@ async function addToRecentChat(recentChatModel, isUser1) {
   } catch (e) {
     console.log("Recent chat add error- " + e);
   }
-}
+};
 
 async function updateRecentMessage(_id, isUser1, lastMsgTime, lastMsgText) {
   let updateObj = {};
@@ -59,15 +59,12 @@ async function updateRecentMessage(_id, isUser1, lastMsgTime, lastMsgText) {
     };
   }
 
-  console.log("updating Recent Message 0:- "+_id);
-  console.log("updating Recent Message 1 :- "+util.inspect(updateObj, { depth: null }));
-
   try {
     await RecentChatModel.findByIdAndUpdate(_id, updateObj, {
       runValidators: true,
     });
   } catch (e) {
-  console.log("updating Recent Message error :- " + e);
+    console.log("updating Recent Message error :- " + e);
     console.log("INCREMENT ERROR :- " + e);
   }
 }
@@ -90,62 +87,52 @@ async function msgCountToZero(_id, isUser1) {
   }
 }
 
-exports.addMessage = async (req, res, next) => {
+// exports.addMessage = async (req, res, next) => {
+//   const privateMessageModel = req.body.privateMessageModel;
+//   const recentChatModel = req.body.recentChatModel;
 
+//   console.log(
+//     "Het 1212 privateMessageModel :- " +
+//       util.inspect(privateMessageModel, { depth: null })
+//   );
+//   console.log(
+//     "Het 1212 recentChatModel :- " +
+//       util.inspect(recentChatModel, { depth: null })
+//   );
 
-  const privateMessageModel = req.body.privateMessageModel;
-  const recentChatModel = req.body.recentChatModel;
-  const recentChatId = recentChatModel._id;
+//   const senderId = privateMessageModel.sender_id;
+//   const receiverId = privateMessageModel.receiver_id;
+//   const listOfParticipants = [senderId, receiverId];
+//   listOfParticipants.sort();
 
-  console.log("Het 1212 privateMessageModel :- " + util.inspect(privateMessageModel, { depth: null }));
-  console.log("Het 1212 recentChatModel :- " + util.inspect(recentChatModel, { depth: null }));
+//   const senderIsUserOne = isUserOne(listOfParticipants, senderId);
 
-  const senderId = privateMessageModel.sender_id;
-  const receiverId = privateMessageModel.receiver_id;
-  const listOfParticipants = [senderId, receiverId];
-  listOfParticipants.sort();
+//   try {
+//     // let recentChatModelWithoutNullValue = Object.fromEntries(
+//     //   Object.entries(recentChatModel).filter(([_, v]) => v != null)
+//     // );
 
-  const senderIsUserOne = isUserOne(listOfParticipants, senderId);
+//     socketService.emitUpdateExistingMessageEvent({
+//       msgId: privateMessageModel._id,
+//       roomId: senderId,
+//       status: msgStatus.sent,
+//     });
 
+//     if (!recentChatModel.should_update) {
+//       await addToRecentChat(recentChatModel, senderIsUserOne);
+//       socketService.emitAddRecentChatEvent(receiverId, recentChatModel);
+//     }
 
-  try {
-    // let recentChatModelWithoutNullValue = Object.fromEntries(
-    //   Object.entries(recentChatModel).filter(([_, v]) => v != null)
-    // );
-
-    socketService.emitUpdateExistingMessageEvent({
-      msgId: privateMessageModel._id,
-      roomId: senderId,
-      status: msgStatus.sent,
-    });
-
-    if (recentChatModel.should_update) {
-      // await updateRecentMessage(recentChatModel._id, senderIsUserOne,recentChatModel.last_msg_time,recentChatModel.last_msg);
-    } else {
-      await addToRecentChat(recentChatModel, senderIsUserOne);
-  console.log("newRecentChat 00 11 :- " + receiverId);
-  console.log("newRecentChat 00 22 :- " + util.inspect(recentChatModel, { depth: null }));
-
-      socketService.emitAddRecentChatEvent(
-        receiverId,
-        recentChatModel
-      );
-    }
-
-    await PrivateMessageModel.create(privateMessageModel);
-    socketService.emitPrivateMessageEvent(receiverId, privateMessageModel);
-    res.dataUpdateSuccess({ message: "Message Created Successfully" });
-  } catch (error) {
-    console.log("ERORR IN NEW MESGA12");
-    console.log(error);
-    next(error);
-  }
-};
+//     socketService.emitPrivateMessageEvent(receiverId, privateMessageModel);
+//     await PrivateMessageModel.create(privateMessageModel);
+//     res.dataUpdateSuccess({ message: "Message Created Successfully" });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 exports.getMissedMessage = async (userId) => {
-  console.log(
-    `-------------------- GETTING MISSED MESSAGE FOR : ${userId} -------------------`
-  );
+  console.log(  `-------------------- GETTING MISSED MESSAGE FOR : ${userId} -------------------`);
 
   try {
     const foundUpdatedMessages = await PrivateMessageModel.find({
@@ -161,9 +148,6 @@ exports.getMissedMessage = async (userId) => {
     );
 
     for (const message of foundUpdatedMessages) {
-      console.log(
-        `-------------------- FOUND MESSAGES FOR : ${userId} :: STATUS : ${message.msg_status}`
-      );
 
       socketService.emitUpdateExistingMessageEvent({
         msgId: message._id,

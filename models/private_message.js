@@ -62,7 +62,7 @@ const privateMessageSchema = new mongoose.Schema({
     },
     sender_placeholder_image:{
         type:String,
-        required:true,
+        default:null
     },
     msg_content:{
         type:String,
