@@ -23,14 +23,4 @@ exports.getUserConnectionStatus = async (req, res, next) => {
   }
 };
 
-exports.changeConnectionStatus = async (id, status) => {
-  try {
-    const body = {
-      isOnline: status,
-    };
 
-    await userModel.findByIdAndUpdate(id, body);
-  } catch (error) {
-    console.log("ERROR :- " + error);
-  }
-};

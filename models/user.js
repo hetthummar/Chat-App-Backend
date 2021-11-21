@@ -52,10 +52,6 @@ const userSchema = new mongoose.Schema({
     joined_groups:{
         type:[Number],
     },
-    isOnline:{
-        type:Boolean,
-        default:false
-    }
 });
 
 const model = mongoose.model('users',userSchema);

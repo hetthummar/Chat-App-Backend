@@ -1,0 +1,55 @@
+{
+  "user1_name": {
+    "$cond":{
+      if:
+        {
+          $and: [
+           { $eq: [ "$matchedIndex", 0 ]},
+           { $ne: [ "hetNickk", null ]}
+            ]
+        },
+      then: "hetNickk",
+      else: "$user1_name"  
+    }
+  },
+    "user1_compressed_image": {
+    "$cond":{
+      if:
+        {
+          $and: [
+           { $eq: [ "$matchedIndex", 0 ]},
+           { $ne: [ "hetNickk", null ]}
+            ]
+        },
+      then: "hetNickk",
+      else: "$user1_compressed_image"  
+    }
+  },
+   "user2_name": {
+    "$cond":{
+      if:
+        {
+          $and: [
+           { $eq: [ "$matchedIndex", 0 ]},
+           { $ne: [ "hetNickk", null ]}
+            ]
+        },
+      then: "hetNickk",
+      else: "$user2_name"  
+    }
+  },
+    "user2_compressed_image": {
+    "$cond":{
+      if:
+        {
+          $and: [
+           { $eq: [ "$matchedIndex", 0 ]},
+           { $ne: [ "hetNickk", null ]}
+            ]
+        },
+      then: "hetNickk",
+      else: "$user2_compressed_image"  
+    }
+  },
+  
+}

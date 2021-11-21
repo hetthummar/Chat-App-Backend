@@ -109,8 +109,11 @@ const privateMessageSchema = new mongoose.Schema({
     image_info:{
         type:imageInfoSchema,
         default:null
-    }    
-
+    },
+    should_update_recent_chat:{
+        type:Boolean,
+        default:false
+    }
 });
 
 const model = mongoose.model('messages',privateMessageSchema);

@@ -10,11 +10,11 @@ const database = require("./db/connection");
 const initializeFirebase = require("./firebase/firebase_init");
 const decodeIDToken = require("./middlewares/verify_token");
 const { makeSocketConnection } = require("./services/socket_service");
-
 const PORT = process.env.PORT || 5000;
 
 const app = express();
 const server = require("http").createServer(app);
+
 
 app.use(morgan("dev"));
 app.use(express.urlencoded());

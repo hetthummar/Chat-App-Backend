@@ -7,6 +7,11 @@ const userConnectionStatusController = require("../controllers/user_connnection_
 const PrivateMessageModel = require("../models/private_message");
 const isUserOne = require("../utils/helper_functions/is_user_one");
 
+
+function emitUserStatus(userId,userStatus){
+  io.emit(userId+"_status", userStatus);
+}
+
 const socketConnected = (userId) => {
   const connectionStatusChangeData = {
     userId: userId,
@@ -15,88 +20,81 @@ const socketConnected = (userId) => {
 
   socketConnection.broadcast.emit(
     userId + "_status",
-    connectionStatusChangeData
+    connectionStatusChangeData.isOnline
   );
-  userConnectionStatusController.changeConnectionStatus(userId, true);
   messageController.getMissedMessage(userId);
+  messageController.getMissedRecentChatUpdate(userId);
 };
 
 const socketDisConnected = (userId) => {
-  const connectionStatusChangeData = {
-    userId: userId,
-    isOnline: false,
-  };
-
-  userConnectionStatusController.changeConnectionStatus(userId, false);
-  socketConnection.broadcast.emit(
-    userId + "_status",
-    connectionStatusChangeData
-  );
   console.log(
     `-------------------- USER with : ${userId} is OFFLINE-------------------`
   );
+  emitUserStatus(userId,false);
 };
 
-function emitAddRecentChatEvent(receiverId, recentChat) {
+const emitAddRecentChatEvent = (exports.emitAddRecentChatEvent = (receiverId, recentChat) => {
   io.to(receiverId).emit("newRecentChat", recentChat);
-}
+});
 
 const emitPrivateMessageEvent = (exports.emitPrivateMessageEvent = (
   roomId,
   message
 ) => {
+  console.log("Start emiting private msg 1 :- " + util.inspect(message));
   io.to(roomId).emit("newPrivateMessage", message);
 });
 
-const emitUpdateExistingMessageEvent = exports.emitUpdateExistingMessageEvent = ({
-  roomId,
-  msgId,
-  status,
-  seenAt = null,
-  deliveredAt = null,
-  withAcknowledgeApi = false,
-} = {}) => {
-  console.log("deliveredAt  :- " + deliveredAt);
-  console.log("deliveredAt seenAt :- " + seenAt);
+const emitUpdateExistingMessageEvent = (exports.emitUpdateExistingMessageEvent =
+  ({
+    roomId,
+    msgId,
+    status,
+    seenAt = null,
+    deliveredAt = null,
+    withAcknowledgeApi = false,
+  } = {}) => {
+    console.log("deliveredAt  :- " + deliveredAt);
+    console.log("deliveredAt seenAt :- " + seenAt);
 
-  let message = {
-    msg_status: status,
-    _id: msgId,
-  };
-
-  if (seenAt != null && deliveredAt != null) {
-    status = msgStatus.seen;
-    message = {
+    let message = {
       msg_status: status,
       _id: msgId,
-      delivered_at: deliveredAt,
-      seen_at: seenAt,
     };
-  } else if (seenAt != null) {
-    status = msgStatus.seen;
-    message = {
-      msg_status: status,
-      _id: msgId,
-      seen_at: seenAt,
-    };
-  } else if (deliveredAt != null) {
-    status = msgStatus.delivered;
-    message = {
-      msg_status: status,
-      _id: msgId,
-      delivered_at: deliveredAt,
-    };
-  }
 
-  console.log("deliveredAt seenAt 123 :- " + util.inspect(message));
+    if (seenAt != null && deliveredAt != null) {
+      status = msgStatus.seen;
+      message = {
+        msg_status: status,
+        _id: msgId,
+        delivered_at: deliveredAt,
+        seen_at: seenAt,
+      };
+    } else if (seenAt != null) {
+      status = msgStatus.seen;
+      message = {
+        msg_status: status,
+        _id: msgId,
+        seen_at: seenAt,
+      };
+    } else if (deliveredAt != null) {
+      status = msgStatus.delivered;
+      message = {
+        msg_status: status,
+        _id: msgId,
+        delivered_at: deliveredAt,
+      };
+    }
 
-  // socketConnection.to(roomId).emit("updateExistingMessage", message);
-  if (withAcknowledgeApi) {
-    io.to(roomId).emit("updateExistingMessageWithAcknowledgeApi", message);
-  } else {
-    io.to(roomId).emit("updateExistingMessage", message);
-  }
-};
+    console.log("deliveredAt seenAt 123 :- " + util.inspect(message));
+
+    // socketConnection.to(roomId).emit("updateExistingMessage", message);
+    if (withAcknowledgeApi) {
+      io.to(roomId).emit("updateExistingMessageWithAcknowledgeApi", message);
+    } else {
+      io.to(roomId).emit("updateExistingMessage", message);
+    }
+  });
 
 function listenToEvents(socket, userId) {
   socket.on("newPrivateMessage", async (data, callback) => {
@@ -115,7 +113,7 @@ function listenToEvents(socket, userId) {
       console.log("newPrivateMessage :- " + "callbackFired");
       callback();
 
-      if (!recentChatModel.should_update) {
+      if (!recentChatModel.should_update_recent_chat) {
         await messageController.addToRecentChat(
           recentChatModel,
           senderIsUserOne
@@ -147,7 +145,7 @@ function listenToEvents(socket, userId) {
       emitUpdateExistingMessageEvent({
         msgId: msgId,
         seenAt: msgSeenTime,
-        deliveredAt:msgDeliverTime,
+        deliveredAt: msgDeliverTime,
         roomId: senderId,
         withAcknowledgeApi: true,
       });
@@ -156,18 +154,24 @@ function listenToEvents(socket, userId) {
         msgId,
         {
           seen_at: msgSeenTime,
-        deliveredAt:msgDeliverTime,
-          msg_status: msgSeenTime != null ? msgStatus.seen:msgStatus.delivered,
+          deliveredAt: msgDeliverTime,
+          msg_status:
+            msgSeenTime != null ? msgStatus.seen : msgStatus.delivered,
           sender_local_updated: false,
           receiver_local_updated: true,
         },
         { runValidators: true }
       );
-
     } catch (error) {
       console.log("updateMessage " + "Error :- " + error);
       // next(error);
     }
+  });
+
+  socket.on("userStatus", (data) => {
+    const userId = data.id;
+    const userStatus = data.userStatus;
+    emitUserStatus(userId,userStatus);
   });
 
   socket.on("typing", (data) => {
@@ -202,6 +206,5 @@ exports.makeSocketConnection = (server) => {
 exports.emitUpdateRecentChatEvent = (roomId, recentChat) => {
   io.to(roomId).emit("updateRecentChat", recentChat);
 };
-
 
 exports.getRooms = () => io.sockets.adapter.rooms;

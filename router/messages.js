@@ -6,5 +6,7 @@ router.patch("/updateMsgSeenTime", messageController.updateMsgSeenTime);
 router.patch("/updateMsgDeliverTime", messageController.updateMsgDeliverTime);
 router.get("/getMissedMessage", messageController.getMissedMessage);
 router.patch("/updateSenderLocalMsgStatus", messageController.msgUpdatedLocallyForSender);
+router.patch("/recentChatUpdate", messageController.updateRecentMessage);
+
 
 module.exports = router;

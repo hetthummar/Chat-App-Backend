@@ -8,5 +8,7 @@ router.post("/", userController.addUser);
 router.get("/", userController.getSingleUser);
 router.get("/search/", userController.searchSingleUser);
 router.patch("/userUpdateToken/", userController.updateUserToken);
+router.get("/getBackupDetails/", userController.getUserBackUpDetails);
+router.get("/userBackUpData/", userController.getUserBackUpData);
 
 module.exports = router;

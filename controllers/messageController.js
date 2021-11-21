@@ -26,48 +26,38 @@ exports.addToRecentChat = async (recentChatModel, isUser1) => {
   );
 
   try {
-    if (isUser1) {
-      recentChatModel.user1_local_updated = true;
-      recentChatModel.user2_local_updated = false;
-    } else {
-      recentChatModel.user1_local_updated = false;
-      recentChatModel.user2_local_updated = true;
-    }
+    // if (isUser1) {
+    //   recentChatModel.user1_local_updated = true;
+    //   recentChatModel.user2_local_updated = false;
+    // } else {
+    //   recentChatModel.user1_local_updated = false;
+    //   recentChatModel.user2_local_updated = true;
+    // }
 
+    recentChatModel.user1_local_updated = true;
+    recentChatModel.user2_local_updated = true;
     await RecentChatModel.create(recentChatModel);
   } catch (e) {
     console.log("Recent chat add error- " + e);
   }
 };
 
-async function updateRecentMessage(_id, isUser1, lastMsgTime, lastMsgText) {
-  let updateObj = {};
+exports.updateRecentMessage = async (req,res,next) => {
 
-  if (isUser1) {
-    updateObj = {
-      $inc: { user2_unread_msg: 1 },
-      user2_local_updated: false,
-      last_msg_time: lastMsgTime,
-      last_msg: lastMsgText,
-    };
-  } else {
-    updateObj = {
-      $inc: { user1_unread_msg: 1 },
-      user1_local_updated: false,
-      last_msg_time: lastMsgTime,
-      last_msg: lastMsgText,
-    };
-  }
+
+  const updateObj = req.body;
+  const _id = req.body._id;
+  delete updateObj["_id"];
+  console.log("eq.body :- " + util.inspect(updateObj));
+  console.log("eq.body :- " +req.body._id);
 
   try {
-    await RecentChatModel.findByIdAndUpdate(_id, updateObj, {
-      runValidators: true,
-    });
+    await RecentChatModel.findByIdAndUpdate(_id, updateObj);
+    res.dataUpdateSuccess({ message: "Message Created Successfully" });
   } catch (e) {
-    console.log("updating Recent Message error :- " + e);
-    console.log("INCREMENT ERROR :- " + e);
+    next(e);
   }
-}
+};
 
 async function msgCountToZero(_id, isUser1) {
   let updateObj = {};
@@ -160,12 +150,79 @@ exports.getMissedMessage = async (userId) => {
     }
 
     for (const message of foundNewMessages) {
+      const participantToSearchFor = [message.participants.user1_id,message.participants.user2_id];
+      participantToSearchFor.sort();
+      const foundRecentChat = await RecentChatModel.find({
+        "participants": participantToSearchFor,
+      });
+
+
+      if (message.should_update_recent_chat) {
+      socketService.emitAddRecentChatEvent(userId,foundRecentChat[0]);
+      }
+
       socketService.emitPrivateMessageEvent(userId, message);
+
     }
+
   } catch (error) {
     console.log("ERROR OCCURRED :- " + error);
   }
 };
+
+exports.getMissedRecentChatUpdate = async (userId) => {
+  console.log(  `-------------------- GETTING MISSED RECENT CHAT UPDATE MESSAGE FOR : ${userId} -------------------`);
+
+  try {
+    let aggragationQuery = [
+      {
+        '$match': {
+          'participants': userId
+        }
+      }, {
+        '$addFields': {
+          'matchedIndex': {
+            '$indexOfArray': [
+              '$participants', userId
+            ]
+          }
+        }
+      }, {
+        '$match': {
+          '$or': [
+            {
+              '$and': [
+                {
+                  'matchedIndex': 1
+                }, {
+                  'user1_local_updated': true
+                }
+              ]
+            }, {
+              '$and': [
+                {
+                  'matchedIndex': 0
+                }, {
+                  'user2_local_updated': true
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ];
+
+    const results = await RecentChatModel.aggregate(aggragationQuery);
+    results.forEach(async function(x){
+      console.log("FOIND :- " + util.inspect(x));
+      socketService.emitAddRecentChatEvent(userId,x);
+    });
+
+  } catch (error) {
+    console.log("ERROR OCCURRED in GETTING MISSED RECENT CHAT UPDATE MESSAGE :- " + error);
+  }
+};
+
 
 exports.updateMsgDeliverTime = async (req, res, next) => {
   try {

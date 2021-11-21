@@ -49,5 +49,5 @@ const recentChatSchema = new mongoose.Schema({
     }
 });
 
-const model = mongoose.model('recentChat',recentChatSchema);
+const model = mongoose.model('recentchats',recentChatSchema);
 module.exports = model;
