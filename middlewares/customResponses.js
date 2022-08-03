@@ -57,7 +57,6 @@ const customResponses = {
       error: message,
     });
   },
-
 };
 
 module.exports = (req, res, next) => {

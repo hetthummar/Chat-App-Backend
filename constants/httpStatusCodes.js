@@ -6,4 +6,4 @@ const httpStatusCodes = {
     INTERNAL_SERVER: 500
    };
    
-   module.exports = httpStatusCodes;
+module.exports = httpStatusCodes;

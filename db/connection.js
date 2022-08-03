@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
-// let dbUri = "mongodb://localhost/resManagement";
-const dbUri = "mongodb+srv://hetthummar:osho9050@cluster0.l6c9h.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+// eslint-disable-next-line no-undef
+const dbUri = process.env.MONGO_DB_URL;
 
 exports.connectToDb = async (succes,failure) => {
 
@@ -14,7 +14,7 @@ exports.connectToDb = async (succes,failure) => {
         // useFindAndModify : false
     }).then(() => {
         // mongoose.connection.db.dropCollection('products', function(err, result) {});
-        console.log("conncetion Successful");
+        console.log("Conncetion Successful");
         succes();
     }).catch((e) => {
         failure(e);

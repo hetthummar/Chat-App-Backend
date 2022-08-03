@@ -282,7 +282,6 @@ exports.updateUser = async (req, res, next) => {
 
 exports.getUserBackUpDetails = async (req, res, next) => {
   try {
-    console.log("REQ BODY :- " + util.inspect(req.query));
     const _id = req.query._id;
     if (!_id) {
       throw errorResponse.idNotFoundError();
