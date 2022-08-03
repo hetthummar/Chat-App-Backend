@@ -4,6 +4,7 @@
 Backend for Flutter ChatApp - written using Node js. 
 You can find repository of flutter app [here](https://linktodocumentation)
 
+![App Screenshot](https://firebasestorage.googleapis.com/v0/b/resume-b40bc.appspot.com/o/chat_app_ss_1.png?alt=media&token=2b38f613-442d-47f7-81e5-46703f199f9f)
 
 ## Tech Stack
 
